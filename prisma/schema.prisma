@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole  @default(USER)
+  accounts      Account[]
+
+  isTwoFAEnabled    Boolean                    @default(false)
+  twoFAConfirmation TwoFactorAuthConfirmation?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model TwoFactorAuthConfirmation {
+  id     String @id @default(cuid())
+  userId String
+
+  // if a user record is deleted from the `User` table,
+  // all related records reference the deleted user will also be automatically deleted.
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String
+  expires    DateTime
+  // @@map("verificationtokens")
+
+  @@unique([identifier, token])
+}
+
+model ResetToken {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String
+  expires    DateTime
+  // @@map("resettokens")
+
+  @@unique([identifier, token])
+}
+
+model TwoFactorAuthToken {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  // @@map("twofactorauthtokens")
+
+  @@unique([identifier, token])
+}
