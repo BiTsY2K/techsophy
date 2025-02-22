@@ -1,72 +1,109 @@
-
 "use client"
-import { useState, ChangeEvent, FormEvent } from "react";
 
+import { useState, ChangeEvent, FormEvent } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { PredictionData, PredictionResponse } from '@/app/types';
 
-interface FormData {
-  pregnancy: string;
-  glucose: string;
-  bloodPressure: string;
-  skinThickness: string;
-  insulin: string;
-  BMI: string;
-  diabetesPedigreeFunction: string;
-  age: string;
-}
-
-export default function DiabetesForm() {
-  const [formData, setFormData] = useState<FormData>({
-    pregnancy: "",
-    glucose: "",
-    bloodPressure: "",
-    skinThickness: "",
-    insulin: "",
-    BMI: "",
-    diabetesPedigreeFunction: "",
-    age: "",
+const PredictionForm = () => {
+  const [formData, setFormData] = useState<PredictionData>({
+    Pregnancies: 0,
+    Glucose: 0,
+    BloodPressure: 0,
+    SkinThickness: 0,
+    Insulin: 0,
+    BMI: 0,
+    DiabetesPedigree: 0,
+    Age: 0
   });
 
-  const [result, setResult] = useState<string | null>(null);
+  const [prediction, setPrediction] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          data: formData,
+          modelType: 'classification'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Prediction failed');
+      }
+
+      const result = await response.json() as PredictionResponse;
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      setPrediction(result.prediction);
+    } catch (err) {
+      setError((err as Error).message || 'Failed to get prediction. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setResult(`Submitted Data: ${JSON.stringify(formData, null, 2)}`);
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: parseFloat(value) || 0
+    }));
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Diabetes Risk Form</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {Object.keys(formData).map((key) => (
-          <div key={key}>
-            <label className="block text-sm font-medium text-gray-700 capitalize">{key}</label>
-            <input
-              type="number"
-              name={key}
-              value={formData[key as keyof FormData]}
-              onChange={handleChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring focus:ring-blue-200"
-              required
-            />
-          </div>
-        ))}
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition"
-        >
-          Submit
-        </button>
-      </form>
-      {result && (
-        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-          <h3 className="text-lg font-semibold">Result:</h3>
-          <pre className="text-sm text-gray-700">{result}</pre>
-        </div>
-      )}
-    </div>
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle>Diabetes Prediction</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {(Object.keys(formData) as Array<keyof PredictionData>).map((field) => (
+            <div key={field} className="grid w-full items-center gap-1.5">
+              <Label htmlFor={field}>{field}</Label>
+              <Input
+                type="number" id={field} name={field} value={formData[field]} onChange={handleInputChange} required className="w-full" step="any"
+              />
+            </div>
+          ))}
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading}
+          >
+            {loading ? 'Predicting...' : 'Get Prediction'}
+          </Button>
+
+          {error && (
+            <div className="text-red-500 text-sm mt-2">{error}</div>
+          )}
+
+          {prediction !== null && (
+            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+              <h3 className="font-semibold">Prediction Result:</h3>
+              <p className="mt-2">
+                {prediction === 1 ? 'Positive' : 'Negative'} for diabetes
+              </p>
+            </div>
+          )}
+        </form>
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default PredictionForm;
