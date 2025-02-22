@@ -25,9 +25,10 @@ export default function NavigationBar() {
   const pathname = usePathname();
 
   const links = [
-    { title: "Dashboard", href: "/admin" },
-    { title: "Server", href: "/server" },
-    { title: "Client", href: "/client" },
+    { title: "Home", href: "/landing" },
+    // { title: "Dashboard", href: "/admin" },
+    // { title: "Server", href: "/server" },
+    // { title: "Client", href: "/client" },
     { title: "Settings", href: "/settings" },
   ];
 

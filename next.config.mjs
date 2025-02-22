@@ -4,11 +4,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "th.bing.com", // Replace with actual image host
+        hostname: "th.bing.com",
       },
       {
         protocol: "https",
-        hostname: "dz2cdn1.dzone.com", // Replace with actual image host
+        hostname: "dz2cdn1.dzone.com",
+      },
+      {
+        protocol: "https",
+        hostname: "static.vecteezy.com",
       },
     ],
   },

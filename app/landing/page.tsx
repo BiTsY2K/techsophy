@@ -2,16 +2,18 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 
 const diseaseList = [
   { name: "Diabetes", image: "https://th.bing.com/th/id/OIP.zebRpAIqbDv0MS43zo7ZbQHaE8?rs=1&pid=ImgDetMain" },
   { name: "Heart Disease", image: "https://th.bing.com/th/id/OIP.nC4T8cgHtNzd-GD6EHORKwHaFj?rs=1&pid=ImgDetMain" },
-  { name: "Cancer", image: "https://th.bing.com/th/id/OIP.NinbneS2x1Teyts6N4QDzAHaEc?rs=1&pid=ImgDetMain" },
-  { name: "Alzheimers", image: "https://th.bing.com/th/id/OIP.dxjoXx9-UuH7LPEAGgdvfQHaE8?w=303&h=202&c=7&r=0&o=5&dpr=1.3&pid=1.7" },
+  { name: "Kidney", image: "https://th.bing.com/th/id/OIP.qMAmqlGeoNvhHP4Iu-ueQAHaE8?rs=1&pid=ImgDetMain" },
+  { name: "Liver", image: "https://static.vecteezy.com/system/resources/thumbnails/002/803/153/small_2x/illustration-of-healthcare-and-medical-education-drawing-chart-of-human-kidney-for-science-biology-study-vector.jpg" },
 ];
 const DiseaseList = [];
 
-export default function Home() {
+export default function HomeLayout() {
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       <header className="text-center py-6 bg-white shadow-md">
@@ -24,16 +26,20 @@ export default function Home() {
 
       <section className="text-center">
         <h2 className="text-2xl font-semibold text-gray-800">Diseases</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
-          <Card className="p-4 shadow-md bg-white rounded-xl">
-            <h3 className="mt-4 font-semibold text-lg">New Record</h3>
-            {/* <Button className="mt-4 px-4 py-2">Read more</Button> */}
-          </Card>
+        <div className="grid mx-auto justify-center grid-cols-2 md:grid-cols-2 gap-6 mt-6">
 
-          <Card className="p-4 shadow-md bg-white rounded-xl">
-            <h3 className="mt-4 font-semibold text-lg">Past Record</h3>
-            {/* <Button className="mt-4 px-4 py-2">Read more</Button> */}
-          </Card>
+          <Link href="/landing/NewEntry">
+            <Card className="p-4 shadow-md bg-white rounded-xl">
+              <h3 className="mt-4 font-semibold text-lg">New Record</h3>
+              {/* <Button className="mt-4 px-4 py-2">Read more</Button> */}
+            </Card>
+          </Link>
+          <Link href="/landing/PastDetails">
+            <Card className="p-4 shadow-md bg-white rounded-xl" >
+              <h3 className="mt-4 font-semibold text-lg">Past Record</h3>
+              {/* <Button className="mt-4 px-4 py-2">Read more</Button> */}
+            </Card>
+          </Link>
         </div>
       </section>
 
